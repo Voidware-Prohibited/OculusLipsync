@@ -87,6 +87,10 @@ bool OVRLipSyncProcessSoundWave(const FAssetData &SoundWaveAsset, bool UseOfflin
 		UE_LOG(LogTemp, Error, TEXT("Can't process %s: only mono and stereo streams are supported"), *ObjectPath);
 		return false;
 	}
+	// Editor Fix
+	// https://forums.unrealengine.com/t/anyone-get-oculus-ovr-lipsync-plugin-working-in-ue5/560670
+	SoundWave->LoadingBehavior = ESoundWaveLoadingBehavior::ForceInline;
+
 	DecompressSoundWave(SoundWave);
 
 	auto SequenceName = FString::Printf(TEXT("%s_LipSyncSequence"), *SoundWaveAsset.AssetName.ToString());
