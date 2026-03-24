@@ -1,27 +1,3 @@
-# Oculus LipSync Plugin – UE 5.7 Port
-
-Port of the Oculus LipSync Unreal Engine plugin to Unreal Engine 5.7.
-
-This project resolves compilation issues caused by engine API changes and restores compatibility with modern Unreal Engine versions.
-
----
-
-## 🚨 Problem
-
-The original plugin had complilation errors on newer Unreal Engine versions (5.6+ / 5.7), with errors such as:
-
-- Missing `VoiceModule.h`
-- Invalid include paths referencing engine source directly
-- `LogOvrLipSync` undeclared identifier
-
----
-
-## 🛠️ Fixes
-
-- Updated Voice module include to:
-  ```cpp
-  #include "VoiceModule.h"
-
 # OculusLipsyncPlugin-UE5
 
 This repository contains the Oculus LipSync Plugin, which has been compiled for Unreal Engine 5. This plugin allows you to synchronize the lips of 3D characters in your game with audio in real-time, using the Oculus LipSync technology.

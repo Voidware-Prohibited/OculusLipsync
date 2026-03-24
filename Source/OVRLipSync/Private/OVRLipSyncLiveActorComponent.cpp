@@ -22,11 +22,11 @@
  ******************************************************************************/
 
 #include "OVRLipSyncLiveActorComponent.h"
-
+#include "OVRLipSyncModule.h"
 #include "AndroidPermissionCallbackProxy.h"
 #include "AndroidPermissionFunctionLibrary.h"
 #include "OVRLipSyncContextWrapper.h"
-#include "Voice/Public/VoiceModule.h"
+#include "VoiceModule.h"
 
 #include <Core.h>
 #include <algorithm>
@@ -35,18 +35,18 @@
 #define DEFAULT_DEVICE_NAME TEXT("Default Device")
 #endif
 
-// Convert OVRLipSyncProviderKind enum to OVRLipSync
+ // Convert OVRLipSyncProviderKind enum to OVRLipSync
 ovrLipSyncContextProvider ContextProviderFromProviderKind(OVRLipSyncProviderKind Kind)
 {
 	switch (Kind)
 	{
 	default:
 	case OVRLipSyncProviderKind::Original:
-		return ovrLipSyncContextProvider_Original;
+	return ovrLipSyncContextProvider_Original;
 	case OVRLipSyncProviderKind::Enhanced:
-		return ovrLipSyncContextProvider_Enhanced;
+	return ovrLipSyncContextProvider_Enhanced;
 	case OVRLipSyncProviderKind::EnhancedWithLaughter:
-		return ovrLipSyncContextProvider_EnhancedWithLaughter;
+	return ovrLipSyncContextProvider_EnhancedWithLaughter;
 	}
 }
 
@@ -57,7 +57,8 @@ void UOVRLipSyncActorComponent::BeginPlay()
 
 	LipSyncContext = MakeShared<UOVRLipSyncContextWrapper>(ContextProviderFromProviderKind(ProviderKind), SampleRate,
 														   BufferSize, FString(), EnableHardwareAcceleration);
-	LipSyncContext->SetAsyncCallback([this](const TArray<float> &NewVisemes, float NewLaughterScore) {
+	LipSyncContext->SetAsyncCallback([this](const TArray<float>& NewVisemes, float NewLaughterScore)
+	{
 		Visemes = NewVisemes;
 		LaughterScore = NewLaughterScore;
 		OnVisemesReady.Broadcast();
@@ -86,7 +87,7 @@ void UOVRLipSyncActorComponent::Start()
 		UE_LOG(LogOvrLipSync, Log, TEXT("Asking for record audio permission..."));
 		TArray<FString> PermissionsToCheck;
 		PermissionsToCheck.Add(AudioPermission);
-		UAndroidPermissionCallbackProxy *PermCallback =
+		UAndroidPermissionCallbackProxy* PermCallback =
 			UAndroidPermissionFunctionLibrary::AcquirePermissions(PermissionsToCheck);
 		if (PermCallback != nullptr)
 		{
@@ -102,7 +103,7 @@ void UOVRLipSyncActorComponent::Start()
 #endif
 }
 
-void UOVRLipSyncActorComponent::PermissionCallback(const TArray<FString> &Permissions, const TArray<bool> &GrantResults)
+void UOVRLipSyncActorComponent::PermissionCallback(const TArray<FString>& Permissions, const TArray<bool>& GrantResults)
 {
 	UE_LOG(LogOvrLipSync, Log, TEXT("Finished asking for audio permissions."));
 
@@ -131,19 +132,19 @@ void UOVRLipSyncActorComponent::StartVoiceCapture()
 	}
 
 	VoiceCapture->Start();
-	auto &TimerManager = GetWorld()->GetTimerManager();
+	auto& TimerManager = GetWorld()->GetTimerManager();
 	TimerManager.SetTimer(VoiceCaptureTimer, this, &UOVRLipSyncActorComponent::OnVoiceCaptureTimer,
 						  VoiceCaptureTimerRate, true);
 }
 
-void UOVRLipSyncActorComponent::FeedAudio(const TArray<uint8> &VoiceData)
+void UOVRLipSyncActorComponent::FeedAudio(const TArray<uint8>& VoiceData)
 {
 	if (!LipSyncContext)
 	{
 		return;
 	}
 
-	auto *ShortData = reinterpret_cast<const int16 *>(VoiceData.GetData());
+	auto* ShortData = reinterpret_cast<const int16*>(VoiceData.GetData());
 	auto ShortDataSize = VoiceData.Num() / 2;
 	LipSyncContext->ProcessFrameAsync(ShortData, ShortDataSize);
 }
@@ -155,7 +156,7 @@ void UOVRLipSyncActorComponent::Stop()
 		return;
 	}
 
-	auto &TimerManager = GetWorld()->GetTimerManager();
+	auto& TimerManager = GetWorld()->GetTimerManager();
 	TimerManager.ClearTimer(VoiceCaptureTimer);
 	VoiceCapture->Stop();
 	VoiceCapture = nullptr;
